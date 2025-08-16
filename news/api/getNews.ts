@@ -1,46 +1,35 @@
-const API_URL = "https://newsapi.org/v2/top-headlines";
-const API_KEY = "5b018754e90b499fa2b71519db3bf16e"; // ideally from .env
-
 export interface Article {
-    source: { id: string | null; name: string };
-    author: string | null;
-    title: string;
-    description: string | null;
-    url: string;
-    urlToImage: string | null;
-    publishedAt: string;
-    content: string | null;
+    id: string;
+    webTitle: string;
+    webUrl: string;
+    webPublicationDate: string;
+    fields?: {
+        thumbnail?: string;
+        trailText?: string;
+        body?: string;
+    };
 }
 
-export interface NewsResponse {
-    articles: Article[];
-    totalResults: number;
-}
+const API_KEY = "8deed9c7-ddbf-44d3-bfb5-11f5bd16fab1";
+const BASE_URL = "https://content.guardianapis.com/search";
 
-/**
- * Fetch news articles with pagination.
- * @param page - Page number to fetch.
- * @param pageSize - Number of articles per page.
- */
-export const fetchNews = async (
-    page: number = 1,
-    pageSize: number = 10
-): Promise<NewsResponse> => {
+export async function fetchNews(page: number, query: string = "world") {
     try {
-        const url = `${API_URL}?country=us&page=${page}&pageSize=${pageSize}&apiKey=${API_KEY}`;
+        const url = `${BASE_URL}?api-key=${API_KEY}&page=${page}&page-size=10&q=${query}&order-by=newest&show-fields=thumbnail,trailText`;
         const response = await fetch(url);
+        const data = await response.json();
 
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
+        if (!data.response || !data.response.results) {
+            console.log(response.status, response.statusText);
+            throw new Error("Invalid Guardian API response");
         }
 
-        const data = (await response.json()) as NewsResponse;
         return {
-            articles: data.articles || [],
-            totalResults: data.totalResults || 0,
+            articles: data.response.results as Article[],
+            totalResults: data.response.total as number,
         };
     } catch (error) {
-        console.error("Failed to fetch news:", error);
-        throw error;
+        console.error("Error fetching news:", error);
+        return { articles: [], totalResults: 0 };
     }
-};
+}

@@ -1,50 +1,61 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { View, FlatList, ActivityIndicator, Text } from "react-native";
-import { fetchNews, Article } from "@/api/getNews"; // Adjust the import path as necessary
+import { View, FlatList, ActivityIndicator, Text, Image, TouchableOpacity } from "react-native";
+import { fetchNews, Article } from "@/api/getNews";
 
 export default function HomeScreen() {
     const [articles, setArticles] = useState<Article[]>([]);
     const [page, setPage] = useState<number>(1);
     const [loading, setLoading] = useState<boolean>(false);
-    const [hasMore, setHasMore] = useState<boolean>(true);
+    const [totalResults, setTotalResults] = useState<number>(0);
 
     const loadNews = useCallback(async () => {
-        if (loading || !hasMore) return;
-
+        if (loading) return;
         setLoading(true);
-        try {
-            const { articles: newArticles, totalResults } = await fetchNews(page);
-            setArticles((prev) => [...prev, ...newArticles]);
+        const { articles: newArticles, totalResults } = await fetchNews(page);
+        setTotalResults(totalResults);
 
-            if (articles.length + newArticles.length >= totalResults) {
-                setHasMore(false);
-            } else {
-                setPage((prev) => prev + 1);
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    }, [page, loading, hasMore, articles.length]);
+        setArticles((prev) => {
+            const ids = new Set(prev.map((a) => a.id));
+            const uniqueNew = newArticles.filter((a) => !ids.has(a.id));
+            return [...prev, ...uniqueNew];
+        });
+
+        setLoading(false);
+    }, [page]);
 
     useEffect(() => {
         loadNews();
-    }, []);
+    }, [page]);
+
+    const loadMore = () => {
+        if (articles.length < totalResults && !loading) {
+            setPage((prev) => prev + 1);
+        }
+    };
+
+    const renderItem = ({ item }: { item: Article }) => (
+        <TouchableOpacity style={{ padding: 10 }}>
+            <Text style={{ fontWeight: "bold", fontSize: 16 }}>{item.webTitle}</Text>
+            {item.fields?.thumbnail && (
+                <Image
+                    source={{ uri: item.fields.thumbnail }}
+                    style={{ width: "100%", height: 200, marginVertical: 8 }}
+                    resizeMode="cover"
+                />
+            )}
+            <Text>{item.fields?.trailText}</Text>
+        </TouchableOpacity>
+    );
 
     return (
-        <View style={{ flex: 1, padding: 10 }}>
+        <View style={{ flex: 1 }}>
             <FlatList
                 data={articles}
-                keyExtractor={(item, index) => `${item.url}-${index}`}
-                renderItem={({ item }) => (
-                    <Text style={{ marginVertical: 10 }}>{item.title}</Text>
-                )}
-                onEndReached={loadNews}
+                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                onEndReached={loadMore}
                 onEndReachedThreshold={0.5}
-                ListFooterComponent={
-                    loading ? <ActivityIndicator size="large" /> : null
-                }
+                ListFooterComponent={loading ? <ActivityIndicator size="large" /> : null}
             />
         </View>
     );
