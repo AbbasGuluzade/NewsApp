@@ -4,37 +4,63 @@ import { useFavoritesStore } from "@/store/favoritesStore";
 import { Article } from "@/api/getNews";
 import {Ionicons} from "@expo/vector-icons";
 
+import { useThemeStore } from "../store/themesStore";
+import { Colors } from "../constants/Colors";
+
+
 interface Props {
     article: Article;
 }
 
-export function ArticleCard({ article }: Props) {
+export const ArticleCard = React.memo(function ArticleCard({ article }: Props) {
     const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
-
     const favorite = isFavorite(article.webUrl);
 
+    const { theme } = useThemeStore();
+    const currentTheme = theme === "light" ? Colors.light : Colors.dark;
+
     return (
-        <View style={{ padding: 10, borderBottomWidth: 1, borderColor: "#ccc" }}>
-            <Text style={{ fontWeight: "bold" }}>{article.webTitle}</Text>
-            <Text>{article.fields?.trailText}</Text>
-            <Image source={{ uri: article.fields?.thumbnail }} style={{ width: "100%", height: 200, marginVertical: 10 }} />
-            <TouchableOpacity>
-                
-                <Ionicons name={favorite ? "heart" : "heart-outline"} size={40} color="red"
-                          onPress={() =>
-                              favorite ? removeFavorite(article.webUrl) : addFavorite(article)
-                          }
-                          style={{
-                              marginTop: 5,
-                              padding: 6,
-                              borderRadius: 4,
-                              alignSelf: "flex-end"
-                          }}
-                >
-
-                </Ionicons>
-
-            </TouchableOpacity>
-        </View>
+      <View style={{ backgroundColor: currentTheme.background, padding: 10, borderBottomWidth: 1 }}>
+          <Text style={{ fontWeight: "bold", color: currentTheme.text }}>{article.webTitle}</Text>
+          <Text style={{ color: currentTheme.text }}>{article.fields?.trailText}</Text>
+          <Image source={{ uri: article.fields?.thumbnail }} style={{ width: "100%", height: 200, marginVertical: 10 }} />
+          <TouchableOpacity
+            onPress={() =>
+              favorite ? removeFavorite(article.webUrl) : addFavorite(article)
+            }
+          >
+              <Ionicons
+                name={favorite ? "heart" : "heart-outline"}
+                size={40}
+                color={currentTheme.icon}
+                style={{ marginTop: 5, padding: 6, borderRadius: 4, alignSelf: "flex-end" }}
+              />
+          </TouchableOpacity>
+      </View>
     );
+});
+
+const styles = {
+    container: {
+        padding: 10,
+        borderBottomWidth: 1,
+        borderColor: "#ccc",
+    },
+    title: {
+        fontWeight: "bold",
+    },
+    description: {
+        marginVertical: 5,
+    },
+    image: {
+        width: "100%",
+        height: 200,
+        marginVertical: 10,
+    },
+    favoriteButton: {
+        marginTop: 5,
+        padding: 6,
+        borderRadius: 4,
+        alignSelf: "flex-end",
+    },
 }
