@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Linking } 
 import { useThemeStore } from "@/store/themesStore";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import {Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Article } from "@/api/getNews";
 
 export default function NewsDetailScreen() {
@@ -21,6 +21,10 @@ export default function NewsDetailScreen() {
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: currentTheme.background }]}>
+      <Stack.Screen options={{  title: 'Details',
+        headerStyle: {
+          backgroundColor: '#fff',
+        }, }} />
 
       <Text style={[styles.title, { color: currentTheme.text }]}>{article.webTitle}</Text>
       {article.fields?.thumbnail && (
