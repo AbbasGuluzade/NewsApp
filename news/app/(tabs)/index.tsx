@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { View, FlatList, ActivityIndicator, Text, Image, TouchableOpacity } from "react-native";
 import { fetchNews, Article } from "@/api/getNews";
+import { ArticleCard}  from "@/components/ArticleCard";
 
 export default function HomeScreen() {
     const [articles, setArticles] = useState<Article[]>([]);
@@ -34,17 +35,9 @@ export default function HomeScreen() {
     };
 
     const renderItem = ({ item }: { item: Article }) => (
-        <TouchableOpacity style={{ padding: 10 }}>
-            <Text style={{ fontWeight: "bold", fontSize: 16 }}>{item.webTitle}</Text>
-            {item.fields?.thumbnail && (
-                <Image
-                    source={{ uri: item.fields.thumbnail }}
-                    style={{ width: "100%", height: 200, marginVertical: 8 }}
-                    resizeMode="cover"
-                />
-            )}
-            <Text>{item.fields?.trailText}</Text>
-        </TouchableOpacity>
+        <ArticleCard
+            article={item}
+        />
     );
 
     return (
