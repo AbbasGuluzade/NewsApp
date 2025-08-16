@@ -4,6 +4,9 @@ import { fetchNews, Article } from "@/api/getNews";
 import { ArticleCard}  from "@/components/ArticleCard";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 import ThemeToggle from "@/components/ToggleThemeButton";
+import LoadingDots from "@/components/LoadingDots";
+import { useThemeStore } from "@/store/themesStore";
+import { Colors } from "@/constants/Colors";
 
 export default function HomeScreen() {
     const [articles, setArticles] = useState<Article[]>([]);
@@ -13,6 +16,9 @@ export default function HomeScreen() {
     const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
 
     const listRef =useRef<FlatList<Article>>(null);
+
+    const { theme } = useThemeStore();
+    const currentTheme = theme === "light" ? Colors.light : Colors.dark;
 
     const handleScroll = (event: any) => {
         const offsetY = event.nativeEvent.contentOffset.y;
@@ -55,10 +61,7 @@ export default function HomeScreen() {
 
     return (
 
-
-
-
-    <View style={{ flex: 1, marginTop: 40 }}>
+    <View style={{  flex: 1, marginTop: 40, backgroundColor: currentTheme.background, }}>
             <ThemeToggle />
             <FlatList
                 data={articles}
@@ -68,9 +71,11 @@ export default function HomeScreen() {
                 onEndReachedThreshold={0.5}
                 onScroll={handleScroll}
                 removeClippedSubviews={true}
-                initialNumToRender={10}
+                initialNumToRender={5}
+                windowSize={5}
                 ref={listRef}
-                ListFooterComponent={loading ? <ActivityIndicator size="large" /> : null}
+                ListFooterComponent={loading ? <LoadingDots /> : null}
+                ListFooterComponentStyle = {{ paddingVertical: 20 }}
             />
 
             {showScrollTop && (

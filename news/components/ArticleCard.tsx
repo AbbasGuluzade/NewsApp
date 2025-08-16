@@ -13,32 +13,33 @@ interface Props {
 }
 
 export const ArticleCard = React.memo(function ArticleCard({ article }: Props) {
-    const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
-    const favorite = isFavorite(article.webUrl);
+  const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
+  const favorite = isFavorite(article.webUrl);
 
-    const { theme } = useThemeStore();
-    const currentTheme = theme === "light" ? Colors.light : Colors.dark;
+  const { theme } = useThemeStore();
+  const currentTheme = theme === "light" ? Colors.light : Colors.dark;
 
-    return (
-      <View style={{ backgroundColor: currentTheme.background, padding: 10, borderBottomWidth: 1 }}>
-          <Text style={{ fontWeight: "bold", color: currentTheme.text }}>{article.webTitle}</Text>
-          <Text style={{ color: currentTheme.text }}>{article.fields?.trailText}</Text>
-          <Image source={{ uri: article.fields?.thumbnail }} style={{ width: "100%", height: 200, marginVertical: 10 }} />
-          <TouchableOpacity
-            onPress={() =>
-              favorite ? removeFavorite(article.webUrl) : addFavorite(article)
-            }
-          >
-              <Ionicons
-                name={favorite ? "heart" : "heart-outline"}
-                size={40}
-                color={currentTheme.icon}
-                style={{ marginTop: 5, padding: 6, borderRadius: 4, alignSelf: "flex-end" }}
-              />
-          </TouchableOpacity>
-      </View>
-    );
+  return (
+    <View style={{ backgroundColor: currentTheme.background, padding: 10, borderBottomWidth: 1 }}>
+      <Text style={{ fontWeight: "bold", color: currentTheme.text }}>{article.webTitle}</Text>
+      <Text style={{ color: currentTheme.text }}>{article.fields?.trailText}</Text>
+      <Image source={{ uri: article.fields?.thumbnail }} style={{ width: "100%", height: 200, marginVertical: 10 }} />
+      <TouchableOpacity
+        onPress={() =>
+          favorite ? removeFavorite(article.webUrl) : addFavorite(article)
+        }
+      >
+        <Ionicons
+          name={favorite ? "heart" : "heart-outline"}
+          size={40}
+          color={currentTheme.icon}
+          style={{ marginTop: 5, padding: 6, borderRadius: 4, alignSelf: "flex-end" }}
+        />
+      </TouchableOpacity>
+    </View>
+  );
 });
+
 
 const styles = {
     container: {
